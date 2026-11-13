@@ -963,8 +963,8 @@ function vEmpire(){
 /* ================= sheets ================= */
 let sheetOpen=false;
 function openSheet(html){$('#sheetin').innerHTML=html;$('#sheet').hidden=false;sheetOpen=true}
-function closeSheet(){$('#sheet').hidden=true;sheetOpen=false;if(tab)render()}
-$('#sheet').addEventListener('click',e=>{if(e.target.id==='sheet'&&S.dayOpen)closeSheet()});
+let sheetLock=false;function closeSheet(){sheetLock=false;$('#sheet').hidden=true;sheetOpen=false;if(tab)render()}
+$('#sheet').addEventListener('click',e=>{if(e.target.id==='sheet'&&S.dayOpen&&!sheetLock)closeSheet()});
 function showReport(r){
   const R=r.T.rev,E=r.T.exp,L=(k,v,neg)=>v?`<div class="ln"><span>${k}</span><span>${neg?'−':''}${money(v)}</span></div>`:'';
   const rv=[['Games',R.games],['Shoes',R.shoes],['Food',R.food],['Bar',R.bar],['Arcade',R.arcade],['Pro shop',R.shop],['Parties',R.party],['Leagues',R.league],['Tournament',R.tourn],['Franchises',R.fran]];
@@ -1302,7 +1302,7 @@ requestAnimationFrame(frame);
 /* private cash boost: tap the money 7 times, then enter the code */
 (function(){let n=0,t0=0;const hs=s=>{let h=5381;for(const c of s)h=((h*33)^c.charCodeAt(0))>>>0;return h};
   $('#hCash').addEventListener('click',()=>{const now=Date.now();if(now-t0>600)n=0;t0=now;if(++n>=3){n=0;
-    openSheet('<h2>🔒 Back office</h2><div class="small muted">Enter the code.</div><input id="cheatIn" type="password" autocomplete="off" autocapitalize="none" style="width:100%;margin:12px 0"><div class="btns"><button class="no" data-act="close">Cancel</button><button class="ok" data-act="cheat">Go</button></div>')}});
+    sheetLock=true;openSheet('<h2>🔒 Back office</h2><div class="small muted">Enter the code.</div><input id="cheatIn" type="password" autocomplete="off" autocapitalize="none" style="width:100%;margin:12px 0"><div class="btns"><button class="no" data-act="close">Cancel</button><button class="ok" data-act="cheat">Go</button></div>')}});
   ACT.cheat=()=>{const v=(($('#cheatIn')||{}).value||'').trim().toLowerCase();if(hs(v)===3348049594){S.cash+=50000;save();closeSheet();toast('+$50,000 in the till',2200);render()}else{toast('Wrong code')}};
 })();
 

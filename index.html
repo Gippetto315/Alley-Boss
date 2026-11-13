@@ -449,7 +449,9 @@ function repTarget(){
 function netWorth(){let w=S.cash+S.invested*.55;for(const f of FRAN)if(S.fran[f.id])w+=f.cost*(1+.5*(S.fran[f.id]-1))*.8;for(const l of S.loans)w-=l.left*l.per;return w-S.debt.bal}
 function rank(){let r=0;const w=netWorth();RANKS.forEach((x,i)=>{if(w>=x.w)r=i});return r}
 function wagesTotal(){let w=0;for(const k in STAFF)w+=S.staff[k]*wage(k);return w}
-function rentTotal(){return 220+EXPAND.slice(0,S.expand).reduce((a,e)=>a+e.rent,0)}
+/* word of mouth: a brand-new alley starts slow and builds over its first month */
+function openF(){return Math.min(1,.45+.55*(S.day-1)/30)}
+function rentTotal(){return 260+EXPAND.slice(0,S.expand).reduce((a,e)=>a+e.rent,0)}
 function utilTotal(){return 12*S.lanes.length+20*(S.food+S.bar)+2*S.arcade+(has('ac')?40:0)+S.rooms*15}
 const WEAR={interior:{n:'Interior & decor',d:'Carpet, booths, paint, restrooms.'},kitchen:{n:'Kitchen',d:'Fryers, grill, fridges.'},bar:{n:'Bar',d:'Taps, coolers, stools.'},arcade:{n:'Arcade',d:'Joysticks, claws, screens.'}};
 function wearOn(k){return k==='interior'||(k==='kitchen'&&S.food>=1)||(k==='bar'&&S.bar>=1)||(k==='arcade'&&S.arcade>0)}
@@ -499,7 +501,7 @@ function hourTick(h){
   let heat=1;for(const e of S.boosts)if(e.heat)heat=has('ac')?1.2:.75;
   const groups=[];
   for(const k of SEGK){
-    const lam=SEG[k].curve[idx]*2.0*DOWF[dow()]*appeal(k)*repF*boost(k)*priceF*rivalF*heat;
+    const lam=SEG[k].curve[idx]*2.0*openF()*DOWF[dow()]*appeal(k)*repF*boost(k)*priceF*rivalF*heat;
     const n=poisson(lam);for(let j=0;j<n;j++)groups.push(k)}
   groups.sort(()=>Math.random()-.5);
   let lost=0,guests=0;

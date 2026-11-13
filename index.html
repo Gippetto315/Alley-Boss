@@ -819,7 +819,7 @@ const TUT=[
 function tutCard(){const st=TUT[S.tut];if(!st)return '';const here=!st.go||st.go.split(':')[0]===tab&&(!st.go.split(':')[1]||sub[tab]===st.go.split(':')[1]);
   return `<div class="gus"><div class="row sb"><b>📝 Note from Gus · ${S.tut+1}/${TUT.length}</b><button class="gskip" data-act="tutSkip">Skip tips</button></div><div>${st.t}</div><div class="btns">${S.tut>0?`<button class="gbtn" style="flex:0 0 auto;background:rgba(0,0,0,.12);color:#2b2200;box-shadow:none" data-act="tutBack">← Back</button>`:''}${!here?`<button class="gbtn" data-act="goto" data-v="${st.go}">Take me there →</button>`:''}${st.btn||(st.done&&st.done())?`<button class="gbtn" data-act="tutNext">${st.btn||'Done ✓ Next'}</button>`:''}</div></div>`}
 function tutCheck(){const st=TUT[S.tut];if(st&&st.done&&st.done()&&!st.seenDone){st.seenDone=1;S.tut++;if(S.tut>=TUT.length)S.tut=-1;save();toast('Nice! 👍');boom();render()}}
-function render(){renderTop();badge();const m=$('#main');m.innerHTML=(S.preOpen&&S.dayOpen?`<div class="card" style="border-color:var(--amber);text-align:center;justify-items:center"><div style="font-size:2.4rem">🔑</div><h2>Doors are closed</h2><div class="small muted">Hire, build, set prices and book parties. Open up whenever you’re ready. Day ${S.day} is a ${['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][dow()]}${dow()>=4?', so expect a crowd':''}.</div><button class="cta" style="width:100%" data-act="doors">Open the doors</button></div>`:'')+warnings()+tutCard()+({alley:vAlley,build:vBuild,staff:vStaff,events:vEvents,empire:vEmpire})[tab]();if(tab==='alley'){sizeFloor();drawFloor()}
+function render(){renderTop();badge();const m=$('#main');m.innerHTML=('')+warnings()+tutCard()+({alley:vAlley,build:vBuild,staff:vStaff,events:vEvents,empire:vEmpire})[tab]();if(tab==='alley'){sizeFloor();drawFloor()}
   const st=TUT[S.tut];if(st&&st.hl&&(!st.go||st.go.split(':')[0]===tab))document.querySelectorAll(st.hl).forEach(e=>e.classList.add('glow'))}
 function chips(){
   const T=S.today,rev=Object.values(T.rev).reduce((a,b)=>a+b,0);
@@ -827,15 +827,15 @@ function chips(){
   const P=(e,l,v,c='')=>`<button class="pill" style="text-align:left" data-act="info" data-v="${l}"><span class="e">${e}</span><div><small>${l}</small><b class="${c}">${v}</b></div></button>`;
   return `<div class="pills chips">${P('💵','Today',money(rev,1),'good')}${P('👥','Guests',T.guests)}${P('🚪','Walked out',T.lost,T.lost>3?'bad':'')}${P('🧽','Clean',Math.round(S.clean)+'%',S.clean<45?'bad':S.clean<65?'warn':'')}${P('🔧','Lanes',Math.round(lh)+'%',lh<45?'bad':lh<65?'warn':'')}${P('🚨','Jammed',broken,broken?'bad':'')}</div>`}
 function warnings(){const w=[];
-  if(S.food>=2&&foodLvl()<S.food){const need=FOOD[S.food].cooks-S.staff.cook;w.push(['🍳','Kitchen can’t cook!','Your '+FOOD[S.food].n.toLowerCase()+' needs '+FOOD[S.food].cooks+' cook'+(FOOD[S.food].cooks>1?'s':'')+'. Right now it’s only selling snacks.','Hire '+need+' cook'+(need>1?'s':''),'staff'])}
-  if(S.bar>=1&&barLvl()<S.bar){const need=BAR[S.bar].bt-S.staff.bt;w.push(['🍺','Bar can’t run without staff!','Nobody is pouring at your '+BAR[S.bar].n.toLowerCase()+'. You’re losing every drink sale.','Hire '+need+' bartender'+(need>1?'s':''),'staff'])}
-  if((S.rooms&&!S.staff.host)&&(S.booked.length||S.offers.length))w.push(['🥳','Parties need a host!','Parties without a host turn into chaos and pay 30% less.','Hire a party host','staff']);
-  const jam=S.lanes.filter(l=>l.broken).length;if(jam>=2&&!S.staff.mech)w.push(['🚨',jam+' lanes are jammed!','Nobody is fixing them. Tap a lane to fix it ($150), or hire a mechanic.','Hire a mechanic','staff']);
-  if(S.clean<40)w.push(['🤢','The place is filthy!','Clean is at '+Math.round(S.clean)+'%. Reviews are tanking and the health inspector could fine you.','Hire a janitor','staff']);
+  if(S.food>=2&&foodLvl()<S.food){const need=FOOD[S.food].cooks-S.staff.cook;w.push(['🍳','Kitchen can’t cook!','Your '+FOOD[S.food].n.toLowerCase()+' needs '+FOOD[S.food].cooks+' cook'+(FOOD[S.food].cooks>1?'s':'')+'. Right now it’s only selling snacks.','Hire a cook','hire:cook'])}
+  if(S.bar>=1&&barLvl()<S.bar){const need=BAR[S.bar].bt-S.staff.bt;w.push(['🍺','Bar can’t run without staff!','Nobody is pouring at your '+BAR[S.bar].n.toLowerCase()+'. You’re losing every drink sale.','Hire a bartender','hire:bt'])}
+  if((S.rooms&&!S.staff.host)&&(S.booked.length||S.offers.length))w.push(['🥳','Parties need a host!','Parties without a host turn into chaos and pay 30% less.','Hire a party host','hire:host']);
+  const jam=S.lanes.filter(l=>l.broken).length;if(jam>=2&&!S.staff.mech)w.push(['🚨',jam+' lanes are jammed!','Nobody is fixing them. Tap a lane to fix it ($150), or hire a mechanic.','Hire a mechanic','hire:mech']);
+  if(S.clean<40)w.push(['🤢','The place is filthy!','Clean is at '+Math.round(S.clean)+'%. Reviews are tanking and the health inspector could fine you.','Hire a janitor','hire:jan']);
   const worn=Object.keys(WEAR).filter(k=>wearOn(k)&&S.wear[k]<40);if(worn.length)w.push(['🛠️','Things are falling apart!','Worn out: '+worn.map(k=>WEAR[k].n.toLowerCase()).join(', ')+'. It’s costing you sales and stars.','Renovate','build:upkeep']);
   if(S.cash<0)w.push(['💸','You’re in the red!','Three nights in a row below −$15,000 and the bank takes the alley.','See the bank','empire']);
   const key=t=>t.replace(/[0-9]+ /,'');
-  return w.filter(x=>!(S.dismiss&&S.dismiss[key(x[1])]===S.day)).map(([e,t,m,b,go])=>`<div class="alert"><div class="ae">${e}</div><div class="ab"><b>${t}</b><span>${m}</span><div class="row" style="gap:8px;flex-wrap:wrap"><button class="abtn" data-act="goto" data-v="${go}">${b} →</button><button class="abtn" style="background:transparent;color:#ffd0d9;box-shadow:none;border:2px solid rgba(255,208,217,.4)" data-act="dismiss" data-v="${key(t)}">Skip for today</button></div></div></div>`).join('')}
+  return w.filter(x=>!(S.dismiss&&S.dismiss[key(x[1])]===S.day)).map(([e,t,m,b,go])=>`<div class="alert"><div class="ae">${e}</div><div class="ab"><b>${t}</b><span>${m}</span><div class="row" style="gap:8px;flex-wrap:wrap"><button class="abtn" data-act="${go.startsWith('hire:')?'hire':'goto'}" data-v="${go.startsWith('hire:')?go.slice(5):go}">${b} →</button><button class="abtn" style="background:transparent;color:#ffd0d9;box-shadow:none;border:2px solid rgba(255,208,217,.4)" data-act="dismiss" data-v="${key(t)}">Skip for today</button></div></div></div>`).join('')}
 function facs(){
   const partyNow=S.lanes.some(l=>l.res==='party'&&l.busy>absH());
   const F=(e,n,sub,go,off,extra='',live)=>`<button class="fac${off?' off':''}${live?' live':''}" data-act="goto" data-v="${go}"><span class="e">${e}</span><b>${n}</b><span>${sub}</span>${extra}</button>`;
@@ -1240,7 +1240,7 @@ function typeOut(){const el=$('#stxt');let i=0;typing=true;clearInterval(typeT);
     let n=0,out='',inTag=false;for(const ch of fullTxt){if(ch==='<')inTag=true;if(inTag){out+=ch;if(ch==='>')inTag=false;continue}if(n>=i)break;out+=ch;n++}
     el.innerHTML=out+(out.lastIndexOf('<b>')>out.lastIndexOf('</b>')?'</b>':'')},28)}
 function finishType(){clearInterval(typeT);typing=false;const el=$('#stxt');if(el)el.innerHTML=fullTxt}
-function endStory(){clearInterval(typeT);S.storySeen=true;save();const st=$('#story');st.classList.add('fade');setTimeout(()=>{st.hidden=true},450);toast('Welcome to your alley! Tap Open the doors when you are ready.')}
+function endStory(){clearInterval(typeT);S.storySeen=true;save();const st=$('#story');st.classList.add('fade');setTimeout(()=>{st.hidden=true},450);toast('Welcome to your alley! Tap Open doors at the top when you are ready.')}
 $('#sSkip').onclick=endStory;
 
 /* splash: a ball rolls down a perspective lane and blows up the rack */
